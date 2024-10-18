@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROTEM Matrix Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-line;
+        }
+        button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ROTEM Matrix Calculator</h1>
+
+<table>
+    <tr>
+        <th>ROTEM Question</th>
+        <th>Next Step</th>
+        <th>ROTEM Variable</th>
+        <th>Insert ROTEM Findings Here</th>
+    </tr>
+    <tr>
+        <td>Do the patient need tranexamic acid?</td>
+        <td id="nextStep1">please insert ML value</td>
+        <td>ML</td>
+        <td><input type="number" id="ml" placeholder="Enter ML value"></td>
+    </tr>
+    <tr>
+        <td>Do the patient need protamine?</td>
+        <td id="nextStep2">please insert CTin and CTHep values</td>
+        <td>CTin</td>
+        <td><input type="number" id="ctin" placeholder="Enter CTin value"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td>CT Hep</td>
+        <td><input type="number" id="cthep" placeholder="Enter CTHep value"></td>
+    </tr>
+    <tr>
+        <td>Do the patient need fibrinogen or cryoprecipitate?</td>
+        <td id="nextStep3">please insert A10Fib and A10Ext values</td>
+        <td>A10 FIB</td>
+        <td><input type="number" id="a10fib" placeholder="Enter A10 FIB value"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td>A10 EXT</td>
+        <td><input type="number" id="a10ext" placeholder="Enter A10 EXT value"></td>
+    </tr>
+    <tr>
+        <td>Do the patient need platelets?</td>
+        <td id="nextStep4">please insert A10Fib and A10Ext values</td>
+        <td>A10 EXT</td>
+        <td><input type="number" id="a10ext2" placeholder="Enter A10 EXT value"></td>
+    </tr>
+    <tr>
+        <td>Do the patient need PCC or FFP?</td>
+        <td id="nextStep5">please insert CTExt and CTHep</td>
+        <td>CT EXT</td>
+        <td><input type="number" id="ctext" placeholder="Enter CT EXT value"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td>CT Hep</td>
+        <td><input type="number" id="cthep2" placeholder="Enter CTHep value"></td>
+    </tr>
+</table>
+
+<button onclick="calculateNextStep()">Get Next Step</button>
+
+<div id="result" class="result"></div>
+
+<script>
+    function calculateNextStep() {
+        // Retrieve values from inputs
+        let ml = document.getElementById('ml').value;
+        let ctin = document.getElementById('ctin').value;
+        let cthep = document.getElementById('cthep').value;
+        let a10fib = document.getElementById('a10fib').value;
+        let a10ext = document.getElementById('a10ext').value;
+        let ctext = document.getElementById('ctext').value;
+        let cthep2 = document.getElementById('cthep2').value;
+
+        // Logic from Excel formulas
+        // For Tranexamic Acid
+        let nextStep1 = "please insert ML value";
+        if (ml) {
+            nextStep1 = ml > 15 ? "tranexamic acid" : "unlikely";
+        }
+        document.getElementById('nextStep1').innerText = nextStep1;
+
+        // For Protamine
+        let nextStep2 = "please insert CTin and CTHep values";
+        if (ctin && cthep) {
+            nextStep2 = (ctin > 240 && cthep / ctin < 0.9) ? "protamine" : "unlikely";
+        }
+        document.getElementById('nextStep2').innerText = nextStep2;
+
+        // For Fibrinogen or Cryoprecipitate
+        let nextStep3 = "please insert A10Fib and A10Ext values";
+        if (a10fib && a10ext) {
+            nextStep3 = (a10fib < 10 && a10ext < 40) ? "fibrinogen or cryoprecipitate" : "unlikely";
+        }
+        document.getElementById('nextStep3').innerText = nextStep3;
+
+        // For Platelets
+        let nextStep4 = "please insert A10Fib and A10Ext values";
+        if (a10fib && a10ext) {
+            nextStep4 = (a10fib > 10 && a10ext < 40) ? "Platelet +/- DDAVP 0.3 mcg/kg" : "unlikely";
+        }
+        document.getElementById('nextStep4').innerText = nextStep4;
+
+        // For PCC or FFP
+        let nextStep5 = "please insert CTExt and CTHep";
+        if (ctext && cthep2) {
+            nextStep5 = (ctext > 100 || cthep2 > 280) ? "PCC 10-25 IU/Kg or FFP 10-15 ml/kg" : "unlikely";
+        }
+        document.getElementById('nextStep5').innerText = nextStep5;
+
+        // General Consideration (Summary based on all decisions)
+        let generalConsideration = "Consider surgical bleeding, T > 36, PH > 7.2, iCa > 1 mmol/L, HB > 7.5 G/dl";
+        if (nextStep1 === "unlikely" && nextStep2 === "unlikely" && nextStep3 === "unlikely" && nextStep4 === "unlikely" && nextStep5 === "unlikely") {
+            document.getElementById('result').innerText = generalConsideration;
+        } else {
+            document.getElementById('result').innerText = "";
+        }
+    }
+</script>
+
+</body>
+</html>
